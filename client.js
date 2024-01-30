@@ -9,21 +9,32 @@ function unexpectedDisconnect() {
   console.log("Disconnected from reader")
 }
 
-function fetchConnectionToken() {
+async function fetchConnectionToken() {
+  console.log('start fetch connection...')
   // Do not cache or hardcode the ConnectionToken. The SDK manages the ConnectionToken's lifecycle.
-  return fetch('/connection_token.php', { method: "POST" })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(data) {
-      return data.secret;
-    });
+  var res = await fetch('/connection_token.php', { method: "POST" });
+  var data = await res.json();
+  console.log(data, "me")
+  return data.secret;
+    // .then(function(response) {
+    //   console.log('connected machine', response)
+    //   return res = response.json().then(function (data) {
+    //     console.log(data, 'I am ok')
+    //     return data;
+    //   })
+    // })
+    // .then(function(data) {
+    //   console.log(data, 'okkk')
+    //   return data.secret;
+    // });
 }
 
 // Handler for a "Discover readers" button
 function discoverReaderHandler() {
-  var config = {simulated: true};
+  var config = {simulated: false};
+
   terminal.discoverReaders(config).then(function(discoverResult) {
+
     if (discoverResult.error) {
       console.log('Failed to discover: ', discoverResult.error);
     } else if (discoverResult.discoveredReaders.length === 0) {
@@ -39,6 +50,8 @@ function discoverReaderHandler() {
 function connectReaderHandler(discoveredReaders) {
   // Just select the first reader here.
   var selectedReader = discoveredReaders[0];
+  console.log(selectedReader, "Selected Reader")
+  
   terminal.connectReader(selectedReader).then(function(connectResult) {
     if (connectResult.error) {
       console.log('Failed to connect: ', connectResult.error);
@@ -113,6 +126,7 @@ discoverButton.addEventListener('click', async (event) => {
 
 const connectButton = document.getElementById('connect-button');
 connectButton.addEventListener('click', async (event) => {
+  console.log('discover_me', discoveredReaders)
   connectReaderHandler(discoveredReaders);
 });
 
